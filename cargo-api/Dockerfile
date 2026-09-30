@@ -19,7 +19,7 @@ RUN composer dump-autoload --optimize --classmap-authoritative \
 EXPOSE 3142
 
 # --workers=1         one shared copy of the prices
-# --max-requests=0    never restart the worker, so the prices are kept
+# --max-requests=1e9  never restart the worker (0 does not mean unlimited)
 # --admin-port=2019   the default is negative for port 3142 and crashes
 CMD ["php", "artisan", "octane:start", \
      "--server=frankenphp", \
@@ -27,4 +27,4 @@ CMD ["php", "artisan", "octane:start", \
      "--port=3142", \
      "--admin-port=2019", \
      "--workers=1", \
-     "--max-requests=0"]
+     "--max-requests=1000000000"]
