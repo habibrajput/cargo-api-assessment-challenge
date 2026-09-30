@@ -1,0 +1,10 @@
+services:
+  cargo-api:
+    build: .
+    ports:
+      - "3142:3142"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3142/up"]
+      interval: 10s
+      timeout: 2s
+      retries: 5
