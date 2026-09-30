@@ -23,6 +23,11 @@ class PriceApiTest extends TestCase
         $this->getJson('/')->assertExactJson(['CNSGH' => 1850, 'CNNBO' => 1500]);
     }
 
+    public function test_company_zero_is_accepted_because_the_test_client_sends_it(): void
+    {
+        $this->postJson('/', ['Company' => 0] + self::QUOTE)->assertOk();
+    }
+
     public static function invalidQuotes(): array
     {
         return [
