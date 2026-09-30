@@ -20,9 +20,11 @@ EXPOSE 3142
 
 # --workers=1         one shared copy of the prices
 # --max-requests=0    never restart the worker, so the prices are kept
+# --admin-port=2019   the default is negative for port 3142 and crashes
 CMD ["php", "artisan", "octane:start", \
      "--server=frankenphp", \
      "--host=0.0.0.0", \
      "--port=3142", \
+     "--admin-port=2019", \
      "--workers=1", \
      "--max-requests=0"]
