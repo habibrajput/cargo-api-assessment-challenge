@@ -28,6 +28,7 @@ class PriceApiTest extends TestCase
         return [
             'missing field' => [array_diff_key(self::QUOTE, ['Date' => true])],
             'company too high' => [['Company' => 1000] + self::QUOTE],
+            'company as string' => [['Company' => '1'] + self::QUOTE],
             'price zero' => [['Price' => 0] + self::QUOTE],
             'price too high' => [['Price' => 100000] + self::QUOTE],
             'unknown origin' => [['Origin' => 'XXXXX'] + self::QUOTE],
