@@ -1,0 +1,30 @@
+name: CI
+
+on: [push, pull_request]
+
+defaults:
+  run:
+    working-directory: cargo-api
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+      - run: composer install --no-interaction --prefer-dist
+      - run: cp .env.example .env && php artisan key:generate
+      - run: php artisan test
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose up --build --detach --wait
+      # A posted price must still be there on the next request (Octane keeps the state).
+      - run: |
+          curl -fsS -X POST localhost:3142/ -H 'Content-Type: application/json' \
+            -d '{"Company":1,"Price":100,"Origin":"CNSGH","Date":"2020-01-01"}'
+          test "$(curl -fsS localhost:3142/)" = '{"CNSGH":100}'
