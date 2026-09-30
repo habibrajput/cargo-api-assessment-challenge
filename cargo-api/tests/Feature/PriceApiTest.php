@@ -1,0 +1,43 @@
+<?php
+
+namespace Tests\Feature;
+
+use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\TestCase;
+
+class PriceApiTest extends TestCase
+{
+    private const QUOTE = ['Company' => 1, 'Price' => 100, 'Origin' => 'CNSGH', 'Date' => '2020-01-01'];
+
+    public function test_rates_are_an_empty_object_before_any_quote(): void
+    {
+        $this->assertSame('{}', $this->getJson('/')->assertOk()->getContent());
+    }
+
+    public function test_posted_quotes_are_reflected_in_the_rates(): void
+    {
+        $this->postJson('/', ['Company' => 1, 'Price' => 2000, 'Origin' => 'CNSGH', 'Date' => '2020-01-01'])->assertOk();
+        $this->postJson('/', ['Company' => 2, 'Price' => 1500, 'Origin' => 'CNNBO', 'Date' => '2020-01-01'])->assertOk();
+        $this->postJson('/', ['Company' => 3, 'Price' => 1700, 'Origin' => 'CNSGH', 'Date' => '2020-01-01'])->assertOk();
+
+        $this->getJson('/')->assertExactJson(['CNSGH' => 1850, 'CNNBO' => 1500]);
+    }
+
+    public static function invalidQuotes(): array
+    {
+        return [
+            'missing field' => [array_diff_key(self::QUOTE, ['Date' => true])],
+            'company too high' => [['Company' => 1000] + self::QUOTE],
+            'price zero' => [['Price' => 0] + self::QUOTE],
+            'price too high' => [['Price' => 100000] + self::QUOTE],
+            'unknown origin' => [['Origin' => 'XXXXX'] + self::QUOTE],
+            'bad date format' => [['Date' => '01-01-2020'] + self::QUOTE],
+        ];
+    }
+
+    #[DataProvider('invalidQuotes')]
+    public function test_invalid_quotes_are_rejected(array $quote): void
+    {
+        $this->postJson('/', $quote)->assertUnprocessable();
+    }
+}
