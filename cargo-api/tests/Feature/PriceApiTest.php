@@ -46,4 +46,12 @@ class PriceApiTest extends TestCase
     {
         $this->postJson('/', $quote)->assertUnprocessable();
     }
+
+    public function test_errors_are_json_even_without_an_accept_header(): void
+    {
+        // The test client sends no Accept header; Laravel would otherwise redirect (302).
+        $this->call('POST', '/', server: ['CONTENT_TYPE' => 'application/json'], content: '{"Company":1}')
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['Price', 'Origin', 'Date']);
+    }
 }
