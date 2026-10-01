@@ -17,9 +17,11 @@ Needs Docker. To run the tests locally: PHP 8.3 and Composer.
 cd cargo-api
 docker compose up --build   # http://localhost:3142
 php artisan test            # after composer install
+bin/verify                  # runs the supplied client against a fresh container
 ```
 
-Verified with the supplied test client: 1,000,000 quotes, all checks passed, 0 errors.
+Verified with the supplied test client (`bin/verify`): 1,000,000 quotes, all checks passed, 0 errors.
+The tests also compare `PriceService` with a simple separate calculation over 5,000 random quotes.
 
 ## How it works
 

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Runs the supplied test client against a fresh container.
+#
+# Usage:  bin/verify              all 1,000,000 quotes
+#         bin/verify -n 50000     any client flags are passed on
+# The client is expected next to the cargo-api folder; set CLIENT=path to use another one.
+set -euo pipefail
+app="$(cd "$(dirname "$0")/.." && pwd)"
+
+client="${CLIENT:-$app/../client.linux}"
+[ -f "$client" ] || { echo "Client not found: $client (set CLIENT=path/to/client.linux)"; exit 1; }
+client="$(cd "$(dirname "$client")" && pwd)/$(basename "$client")"   # Docker needs an absolute path
+
+cd "$app"
+docker compose up --build --detach --wait
+docker compose restart          # start from an empty price list
+docker compose up --detach --wait
+
+# The Linux client runs in a throwaway container, so this works on macOS, Linux and Windows.
+docker run --rm --platform linux/amd64 --add-host=host.docker.internal:host-gateway \
+    -v "$client:/client:ro" alpine /client -simple -h host.docker.internal "$@"
